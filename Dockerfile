@@ -4,7 +4,7 @@ FROM docker.1ms.run/library/ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Optional: Define Node.js major version (e.g., 20, 18)
-ARG NODE_MAJOR=16.20.02
+ARG NODE_MAJOR=16.20.2
 # Define the mirror URL base. Choose one:
 # Aliyun: http://mirrors.aliyun.com/ubuntu
 # Tsinghua: http://mirrors.tuna.tsinghua.edu.cn/ubuntu
