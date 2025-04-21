@@ -25,8 +25,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the Docker nvm image
       run: docker build . --file images/nvm/Dockerfile --tag ubuntu2204-nvm:$(date +%s)
-    - name: Build the Docker base image
-      run: docker build . --file images/base/Dockerfile --tag ubuntu2204-base:$(date +%s)
+    # - name: Build the Docker base image
+    #   run: docker build . --file images/base/Dockerfile --tag ubuntu2204-base:$(date +%s)
     - name: Push Docker image
       id: build-push
       uses: docker/build-push-action@v5
