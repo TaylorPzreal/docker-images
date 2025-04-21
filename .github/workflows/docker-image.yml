@@ -24,7 +24,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the Docker nvm image
-      run: docker build --no-cache . --file images/nvm/Dockerfile --tag ubuntu2204-nvm:$(date +%s)
+      run: docker build --no-cache . --file images/nvm-node-16/Dockerfile --tag ubuntu2204-nvm-node-16:$(date +%s)
     # - name: Build the Docker base image
     #   run: docker build . --file images/base/Dockerfile --tag ubuntu2204-base:$(date +%s)
     - name: Push Docker image
