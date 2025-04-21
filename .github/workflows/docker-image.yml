@@ -14,5 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ubuntu2204-node16:$(date +%s)
+    - name: Build the Docker nvm image
+      run: docker build . --file images/nvm/Dockerfile --tag ubuntu2204-nvm:$(date +%s)
+    - name: Build the Docker base image
+      run: docker build . --file images/base/Dockerfile --tag ubuntu2204-base:$(date +%s)
