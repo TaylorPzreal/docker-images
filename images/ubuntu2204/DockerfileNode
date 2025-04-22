@@ -1,0 +1,6 @@
+FROM node16-test:latest
+
+RUN node -v
+
+# RUN ls -la /root/.ssh
+RUN ls -la /etc/ssh

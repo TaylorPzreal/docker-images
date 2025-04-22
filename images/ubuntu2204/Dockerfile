@@ -9,12 +9,6 @@ RUN pwd
 RUN ls -la /home
 RUN ls -la /root
 
-# Set environment variable to avoid interactive prompts during installation
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Optional: Define Node.js major version (e.g., 20, 18)
-ARG NODE_VERSION=16.20.2
-
 # Define the mirror URL base. Choose one:
 # Aliyun: http://mirrors.aliyun.com/ubuntu
 # Tsinghua: http://mirrors.tuna.tsinghua.edu.cn/ubuntu
@@ -48,15 +42,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   lsb-release \
   apt-transport-https \
   software-properties-common \
-  wget
+  wget \
+  build-essential libssl-dev \
+  git \
+  openssh-server
 
 # Use bash for the shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN ls -la /etc/ssh
 
 # Create a script file sourced by both interactive and non-interactive bash shells
 ENV BASH_ENV /home/.bash_env
 RUN touch "${BASH_ENV}"
 RUN echo '. "${BASH_ENV}"' >> ~/.bashrc
+
+# -----------------------------------------------------------------------------------------
+
+# Optional: Define Node.js major version (e.g., 20, 18)
+ARG NODE_VERSION=16.20.2
 
 # install nvm
 COPY /images/ubuntu2204/nvm-install.sh /root/nvm-install.sh
@@ -66,12 +70,23 @@ RUN /root/nvm-install.sh
 # set env
 ENV NVM_DIR=/root/.nvm
 
-# install node
-RUN bash -c "source $NVM_DIR/nvm.sh"
+RUN cat /root/.bashrc
 
-RUN ls -la /root
-RUN bash -c "source /root/.bashrc"
+RUN source /root/.bashrc
 
-RUN nvm install $NODE_VERSION
-RUN node -v
-RUN npm -v
+# 安装 Node.js 并创建全局符号链接
+RUN . $NVM_DIR/nvm.sh && \
+  nvm install $NODE_VERSION && \
+  nvm alias default $NODE_VERSION && \
+  nvm use default && \
+  ln -sf $(. $NVM_DIR/nvm.sh && nvm which default) /usr/local/bin/node && \
+  ln -sf /usr/local/bin/node /usr/local/bin/nodejs && \
+  ln -sf $(dirname $(. $NVM_DIR/nvm.sh && nvm which default))/npm /usr/local/bin/npm && \
+  ln -sf $(dirname $(. $NVM_DIR/nvm.sh && nvm which default))/npx /usr/local/bin/npx
+
+# 添加 NODE_PATH 环境变量以确保全局模块可用
+ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+# 验证安装
+RUN node -v && npm -v
