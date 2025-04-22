@@ -62,31 +62,46 @@ RUN echo '. "${BASH_ENV}"' >> ~/.bashrc
 # Optional: Define Node.js major version (e.g., 20, 18)
 ARG NODE_VERSION=16.20.2
 
-# install nvm
-COPY /images/ubuntu2204/nvm-install.sh /root/nvm-install.sh
-RUN chmod +x /root/nvm-install.sh
-RUN /root/nvm-install.sh
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_16.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 
-# set env
-ENV NVM_DIR=/root/.nvm
+RUN apt-get update && apt-get install -y nodejs
 
-RUN cat /root/.bashrc
+# -----------------------------------------------------------------------------------------
+# 不要使用 nvm 安装nodejs，因为 nvm 安装的nodejs版本会有权限问题，导致
+# npm i -g lerna@6.6.2
+# npm ERR! code 127
+# npm ERR! path /root/.nvm/versions/node/v16.20.2/lib/node_modules/lerna/node_modules/@parcel/watcher
+# npm ERR! command failed
+# npm ERR! command sh -c -- node-gyp-build
+# npm ERR! sh: 1: node-gyp-build: Permission denied
+# -----------------------------------------------------------------------------------------
 
-RUN source /root/.bashrc
+# # install nvm
+# COPY /images/ubuntu2204/nvm-install.sh /root/nvm-install.sh
+# RUN chmod +x /root/nvm-install.sh
+# RUN /root/nvm-install.sh
 
-# 安装 Node.js 并创建全局符号链接
-RUN . $NVM_DIR/nvm.sh && \
-  nvm install $NODE_VERSION && \
-  nvm alias default $NODE_VERSION && \
-  nvm use default && \
-  ln -sf $(. $NVM_DIR/nvm.sh && nvm which default) /usr/local/bin/node && \
-  ln -sf /usr/local/bin/node /usr/local/bin/nodejs && \
-  ln -sf $(dirname $(. $NVM_DIR/nvm.sh && nvm which default))/npm /usr/local/bin/npm && \
-  ln -sf $(dirname $(. $NVM_DIR/nvm.sh && nvm which default))/npx /usr/local/bin/npx
+# # set env
+# ENV NVM_DIR=/root/.nvm
 
-# 添加 NODE_PATH 环境变量以确保全局模块可用
-ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+# RUN cat /root/.bashrc
+
+# RUN source /root/.bashrc
+
+# # 安装 Node.js 并创建全局符号链接
+# RUN . $NVM_DIR/nvm.sh && \
+#   nvm install $NODE_VERSION && \
+#   nvm alias default $NODE_VERSION && \
+#   nvm use default && \
+#   ln -sf $(. $NVM_DIR/nvm.sh && nvm which default) /usr/local/bin/node && \
+#   ln -sf /usr/local/bin/node /usr/local/bin/nodejs && \
+#   ln -sf $(dirname $(. $NVM_DIR/nvm.sh && nvm which default))/npm /usr/local/bin/npm && \
+#   ln -sf $(dirname $(. $NVM_DIR/nvm.sh && nvm which default))/npx /usr/local/bin/npx
+
+# # 添加 NODE_PATH 环境变量以确保全局模块可用
+# ENV NODE_PATH $NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules
+# ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # 验证安装
 RUN node -v && npm -v
