@@ -1,16 +1,20 @@
 FROM docker.1ms.run/library/ubuntu:22.04
 
+USER root
+
 # Set environment variable to avoid interactive prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN pwd
 RUN ls -la /home
+RUN ls -la /root
 
 # Set environment variable to avoid interactive prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Optional: Define Node.js major version (e.g., 20, 18)
-ARG NODE_MAJOR=16.20.2
+ARG NODE_VERSION=16.20.2
+
 # Define the mirror URL base. Choose one:
 # Aliyun: http://mirrors.aliyun.com/ubuntu
 # Tsinghua: http://mirrors.tuna.tsinghua.edu.cn/ubuntu
@@ -53,3 +57,21 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV BASH_ENV /home/.bash_env
 RUN touch "${BASH_ENV}"
 RUN echo '. "${BASH_ENV}"' >> ~/.bashrc
+
+# install nvm
+COPY /images/ubuntu2204/nvm-install.sh /root/nvm-install.sh
+RUN chmod +x /root/nvm-install.sh
+RUN /root/nvm-install.sh
+
+# set env
+ENV NVM_DIR=/root/.nvm
+
+# install node
+RUN bash -c "source $NVM_DIR/nvm.sh"
+
+RUN ls -la /root
+RUN bash -c "source /root/.bashrc"
+
+RUN nvm install $NODE_VERSION
+RUN node -v
+RUN npm -v
