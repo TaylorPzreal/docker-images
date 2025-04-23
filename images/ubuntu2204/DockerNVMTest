@@ -1,9 +1,7 @@
-FROM ubuntu2204-test:v2
+FROM nvmimg:latest
 
 RUN node -v
-
-# RUN ls -la /root/.ssh
-RUN ls -la /etc/ssh
+RUN npm -v
 
 RUN npm config set registry https://registry.npmmirror.com
 RUN npm i -g lerna@6.6.2

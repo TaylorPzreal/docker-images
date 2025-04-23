@@ -1,0 +1,27 @@
+FROM docker.1ms.run/library/ubuntu:22.04
+ARG NODE_VERSION=16.20.2
+
+# install curl
+RUN apt update && apt install curl -y
+
+# install nvm
+COPY /images/ubuntu2204/nvm-install.sh /root/nvm-install.sh
+RUN bash /root/nvm-install.sh
+
+# set env
+ENV NVM_DIR=/root/.nvm
+
+# install node
+RUN bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
+
+RUN ls -la
+
+RUN ls -la /root
+
+# set ENTRYPOINT for reloading nvm-environment
+ENTRYPOINT ["bash", "-c", "source $NVM_DIR/nvm.sh && exec \"$@\"", "--"]
+
+RUN chown -R root: /root
+
+# set cmd to bash
+CMD ["/bin/bash"]
